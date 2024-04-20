@@ -152,9 +152,9 @@ def node_classification_minibatch(model, g, train_nid_dict, val_nid_dict, test_n
         )
 
         # print testing info
-        print("Testing Evaluation Metrics")
-        print("Macro-F1: {:.4f}".format(test_macro_f1))
-        print("Micro-F1: {:.4f}".format(test_micro_f1))
+        # print("Testing Evaluation Metrics")
+        # print("Macro-F1: {:.4f}".format(test_macro_f1))
+        # print("Micro-F1: {:.4f}".format(test_micro_f1))
         # save evaluation results
         with dir_path.joinpath("result.txt").open("w") as f:
             f.write("Macro-F1: {:.4f}\n".format(test_macro_f1))
