@@ -22,21 +22,21 @@ Base configs loaded.
 Model configs loaded.
 dblp-gtn dataset configs for this model loaded, override defaults.
 ...
-Epoch [24/30], Step [800/800], Loss: 8.5199 epoch_loss 364.7407269842561  Accuracy on val data: 95.25 %
-Epoch [25/30], Step [800/800], Loss: 8.5164 epoch_loss 364.731803859032  Accuracy on val data: 95.25 %
-Epoch [26/30], Step [800/800], Loss: 8.5135 epoch_loss 364.72594831377097  Accuracy on val data: 95.25 %
-Epoch [27/30], Step [800/800], Loss: 8.5110 epoch_loss 364.72216447466377  Accuracy on val data: 95.25 %
-Epoch [28/30], Step [800/800], Loss: 8.5090 epoch_loss 364.7197684542894  Accuracy on val data: 95.25 %
-Epoch [29/30], Step [800/800], Loss: 8.5073 epoch_loss 364.7182649160564  Accuracy on val data: 95.25 %
-Epoch [30/30], Step [800/800], Loss: 8.5058 epoch_loss 364.7173888884259  Accuracy on val data: 95.25 %
-Accuracy on test data: 94.32971648582429 %
+Epoch [24/30], Step [800/800], Loss: 8.5199 epoch_loss 364.7407269842561  Accuracy on val data: 95.75 %
+Epoch [25/30], Step [800/800], Loss: 8.5164 epoch_loss 364.731803859032  Accuracy on val data: 95.75 %
+Epoch [26/30], Step [800/800], Loss: 8.5135 epoch_loss 364.72594831377097  Accuracy on val data: 95.75 %
+Epoch [27/30], Step [800/800], Loss: 8.5110 epoch_loss 364.72216447466377  Accuracy on val data: 95.75 %
+Epoch [28/30], Step [800/800], Loss: 8.5090 epoch_loss 364.7197684542894  Accuracy on val data: 95.75 %
+Epoch [29/30], Step [800/800], Loss: 8.5073 epoch_loss 364.7182649160564  Accuracy on val data: 95.75 %
+Epoch [30/30], Step [800/800], Loss: 8.5058 epoch_loss 364.7173888884259  Accuracy on val data: 95.75 %
+Accuracy on test data: 95.32971648582429 %
 ```
 
 ## Detail Run
 - Step1
 Decompse a graph data (DBLP) in to flows.
 `python train_decompose_graph.py --dataset=dblp-gtn`
-It will produce a file to store the flows. It is named **decomposed_paths_central_rectangle_DBLP**.
+It will produce a file to store the flows. It is named **decomposed_paths_central_rectangle_dblp**.
 
 - Step2
 Produce the node vectors using a graph neural network.
