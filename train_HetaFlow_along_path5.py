@@ -46,7 +46,7 @@ parser.add_argument("--num-layers", type=int, default=1,
                     help="number of hidden layers")
 parser.add_argument("--num_hidden", type=int, default=num_labels,
                     help="number of hidden units")
-parser.add_argument("--seed", type=int, default=88,
+parser.add_argument("--seed", type=int, default=12345,
                     help="number of seed")
 parser.add_argument("--residual", action="store_true", default=False,
                     help="use residual connection")
@@ -137,9 +137,9 @@ optimizer = th.optim.Adam(model.parameters(), lr=args.learning_rate)
 train_steps = dataloader.get_data_len('train')
 val_steps = dataloader.get_data_len('val')
 test_steps = dataloader.get_data_len('test')
-print('train_steps', train_steps)
-print('val_steps', val_steps)
-print('test_steps', val_steps)
+#print('train_steps', train_steps)
+#print('val_steps', val_steps)
+#print('test_steps', val_steps)
 
 max_val_acc = 0
 max_val_epoch = 0
