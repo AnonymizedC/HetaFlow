@@ -4,45 +4,63 @@
 
 ## Requriment
 To run the code of this repository, the following requriments are needed.
-- python 3
+- python          3
+- pytorch         2.2.1+cu121
+- dgl             2.1.0+cu121
+- torchvision     0.17.1+cu121
+- tqdm            4.66.2
 -  Intall this lib first: [dgl](https://github.com/dmlc/dgl)
 
 ## Simple Run
 Dowload the repository, intall the requriments. Excute the following in a CMD or shell or terminal:
-`python train_HetaFlow_attention_along_path8_DBLP.py --dataset=DBLP`
+`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT`
 
 This is the output:
 ```
-C:\Users\some\path> python train_HetaFlow_attention_along_path8_DBLP.py --dataset=DBLP
-Namespace(alpha=0.2, dataset='DBLP', dropout=0.6, epochs=200, fastmode=False, gpu=-1, in_drop=0.6, learning_rate=0.005, negative_slope=0.2, no_cuda=True, num_heads=1, num_hidden=7, num_layers=1, num_out_heads=1, residual=False, seed=88, syn_gnp_n=1000, syn_gnp_p=0.0, syn_nclasses=10, syn_nfeats=500, syn_seed=42, syn_test_ratio=0.5, syn_train_ratio=0.1, syn_type='gnp', syn_val_ratio=0.2, weight_decay=0.0005)
-loading dataset  DBLP
-
-
-attention layers in_features out_features 7 7
-train_steps 140
-val_steps 300
-test_steps 300
-Epoch [1/200], Step [140/140], Loss: 0.0000 epoch_loss 50.859074115753174  Accuracy on val data: 85.34 %
-Epoch [2/200], Step [140/140], Loss: 0.0000 epoch_loss 48.627846479415894  Accuracy on val data: 88.65 %
-Epoch [3/200], Step [140/140], Loss: 0.0000 epoch_loss 46.63915514945984  Accuracy on val data: 90.07 %
+ubuntu@VM-0-8-ubuntu:~/backup/GFCN$ python3 train_HetaFlow_along_path5.py --dataset=dblp-gtn --model GAT
+Base configs loaded.
+Model configs loaded.
+dblp-gtn dataset configs for this model loaded, override defaults.
 ...
-Epoch [62/200], Step [140/140], Loss: 0.0000 epoch_loss 28.78111696243286  Accuracy on val data: 94.0 %
-Epoch [63/200], Step [140/140], Loss: 0.0000 epoch_loss 28.745331287384033  Accuracy on val data: 94.1 %
-Accuracy on test data: 93.6 %
+Epoch [24/30], Step [800/800], Loss: 8.5199 epoch_loss 364.7407269842561  Accuracy on val data: 95.25 %
+Epoch [25/30], Step [800/800], Loss: 8.5164 epoch_loss 364.731803859032  Accuracy on val data: 95.25 %
+Epoch [26/30], Step [800/800], Loss: 8.5135 epoch_loss 364.72594831377097  Accuracy on val data: 95.25 %
+Epoch [27/30], Step [800/800], Loss: 8.5110 epoch_loss 364.72216447466377  Accuracy on val data: 95.25 %
+Epoch [28/30], Step [800/800], Loss: 8.5090 epoch_loss 364.7197684542894  Accuracy on val data: 95.25 %
+Epoch [29/30], Step [800/800], Loss: 8.5073 epoch_loss 364.7182649160564  Accuracy on val data: 95.25 %
+Epoch [30/30], Step [800/800], Loss: 8.5058 epoch_loss 364.7173888884259  Accuracy on val data: 95.25 %
+Accuracy on test data: 94.32971648582429 %
 ```
 
 ## Detail Run
 - Step1
 Decompse a graph data (DBLP) in to flows.
-`python train_decompose_graph_DBLP.py --dataset=DBLP`
+`python train_decompose_graph.py --dataset=dblp-gtn`
 It will produce a file to store the flows. It is named **decomposed_paths_central_rectangle_DBLP**.
 
 - Step2
-Produce the node vectors using a two layer attention model(GAT).
-`python train_gen_vec_DBLP.py --dataset=DBLP`
+Produce the node vectors using a graph neural network.
+`python train_gen_vec.py -m MECCH -t node_classification -d dblp-gtn -g 0`
 It will produce a file to store node vector. It is named **logits_of_DBLP**
 
 - Step3
-Train a HetaFlow model who's attention is along flows or paths and test its accuracy.
-`python train_HetaFlow_attention_along_path8_DBLP.py --dataset=DBLP`
+Train a GAT model whose attention is along flows or paths (to do the feature adjustments) and test its accuracy.
+`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT`
 
+optional arguments:
+  -h, --help            show this help message and exit
+  --model MODEL, -m MODEL
+                        name of model (can also use other models like GCN, HAN to do the adjustments/ projections)
+  --dataset DATASET, -d DATASET
+                        name of dataset
+  --task TASK, -t TASK  type of task
+  --gpu GPU, -g GPU     which gpu to use, specify -1 to use CPU
+  --config CONFIG, -c CONFIG
+                        config file for model hyperparameters
+  --repeat REPEAT, -r REPEAT
+                        repeat the training and testing for N times
+## Datasets
+All datasets are preprocessed by GTN. Details of how to change/ update the datasets are listed in the folders.
+IMDB
+ACM
+DBLP
