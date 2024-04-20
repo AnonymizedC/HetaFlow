@@ -2,6 +2,9 @@
 import numpy as np
 import pickle
 import networkx as nx
+import pdb
+import dgl
+import time
 
 def gen_two_idx(used_path_idx_set, start, lens):
     # generat i j. start <= i < j < len , not in the set. if not find, one of ij will be -1 
@@ -58,9 +61,13 @@ def add_paths(path_list):
 
 
 def gen_paths(G, source_node=0):
+    # pdb.set_trace()
     # generate some path in the graph
+    # G = dgl.to_networkx(G)
+
     edges_list = list(nx.dfs_edges(G, source=source_node, depth_limit=2))
     #print(edges_list)
+
     if len(edges_list) == 0:
         print(' this source_node find no neighbor ', source_node)
         print(edges_list)
@@ -75,7 +82,7 @@ def gen_paths(G, source_node=0):
         node_set.add(node2)
     if source_node in node_set:
         node_set.remove(source_node)
-
+    # pdb.set_trace()
     #print(node_set)
     paths_len3 = []
     paths_len2 = []
@@ -95,6 +102,7 @@ def gen_paths(G, source_node=0):
         print(edges_list)
         paths_len3 = [[source_node, source_node, source_node]]
     merge_paths = add_paths(paths_len3)
+
     # print('paths_len3', merge_paths)
     # print(len(merge_paths))
     if len(merge_paths) < 10:
@@ -110,28 +118,32 @@ def gen_paths(G, source_node=0):
         merge_paths = merge_paths + mirror_padding_paths(paths_len2)
     while len(merge_paths) < 10:
         merge_paths = merge_paths + merge_paths
-
-    merge_paths = merge_paths[0:10]
-    # print('final merge_paths', merge_paths)
     # print(len(merge_paths))
+    merge_paths = merge_paths[0:10]
     # exit(0)
-
-
     return merge_paths
 
-def main_of_decompose(G, dataset_str):
+def main_of_decompose(G, dataset_str, To_be_projected):
     # input a graph
     print('graph node:', G.number_of_nodes())
     print('graph edge:', G.number_of_edges())
 
     short_path_nodes = []
     decomposed_paths = []
-    for i in range(G.number_of_nodes()):  #G.number_of_nodes()
+    T1 = time.time()
+    G2 = dgl.to_networkx(G)
+    #for i in To_be_projected:
+    #   print(i)
+    #pdb.set_trace()
+    for i in To_be_projected:  #G.number_of_nodes()
         print('decomposing node ', i)
-        ret_paths = gen_paths(G, source_node=i)
+        
+        ret_paths = gen_paths(G2, source_node=i.item())
         decomposed_paths.append(ret_paths) 
         if len(ret_paths) == 0:
             short_path_nodes.append(i)
+        print('Decomposing_time for this node:',  (time.time()-T1))
+        T1 = time.time()
     print('decomposed_paths len ', len(decomposed_paths))
     print('short_path_nodes ', short_path_nodes )
 
@@ -142,7 +154,6 @@ def main_of_decompose(G, dataset_str):
     load_dict = pickle.load(open(dump_file, "rb"))
     print('decomposed_paths len ', len(load_dict['decomposed_paths'] ))
     #print('short_paths ', load_dict['short_paths']  )
-
 
 
 
