@@ -40,7 +40,7 @@ It will produce a file to store the flows. It is named **decomposed_paths_centra
 
 - Step2
 Produce the node vectors using a graph neural network.
-`python train_gen_vec.py -m MECCH -t node_classification -d dblp-gtn -g 0`
+`python train_gen_vec.py -t node_classification -d dblp-gtn -g 0`
 It will produce a file to store node vector. It is named **logits_of_DBLP**
 
 - Step3

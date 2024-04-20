@@ -264,7 +264,7 @@ def main(args):
     # print(args)
 if __name__ == "__main__":
     parser = argparse.ArgumentParser("My HGNNs")
-    parser.add_argument('--model', '-m', type=str, required=True, help='name of model')
+    parser.add_argument('--model', '-m', type=str, default='MECCH', help='name of model')
     parser.add_argument('--dataset', '-d', type=str, required=True, help='name of dataset')
     parser.add_argument('--task', '-t', type=str, default='node_classification', help='type of task')
     parser.add_argument("--gpu", '-g', type=int, default=-1, help="which gpu to use, specify -1 to use CPU")
