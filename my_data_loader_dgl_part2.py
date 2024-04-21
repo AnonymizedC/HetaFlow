@@ -34,6 +34,7 @@ class my_data_set(data.Dataset):
         
         load_dict = pickle.load(open("decomposed_paths_central_rectangle_"+args.dataset, "rb"))
         paths = load_dict['decomposed_paths']
+        Type_encodings = load_dict['Type_encodings']
         # load and preprocess dataset
 
         g, in_dim_dict, out_dim, train_nid_dict, val_nid_dict, test_nid_dict = load_data_nc(args.dataset)
@@ -104,15 +105,19 @@ class my_data_set(data.Dataset):
 
         info_dict = {}
         info_dict['Projected'] = set(To_be_projected.tolist())
-        info_dict['features'] = features
+        fea_final=np.ones((features.shape[0],features.shape[1]+len(Type_encodings[0][0])))*-1
+        fea_final[:,:features.shape[1]]=features
+        # preserve for type embeddings
+        info_dict['features'] = fea_final
         info_dict['labels'] = labels
         info_dict['n_classes'] = n_classes
+        info_dict['Type_encodings'] = Type_encodings
         info_dict['train_idx_set']  = set(idx_train.data.tolist())
         info_dict['val_idx_set'] = set(idx_val.data.tolist())
         info_dict['test_idx_set'] = set(idx_test.data.tolist())
-        print('len train_idx_set ', len(info_dict['train_idx_set']))
-        print('len val_idx_set ', len(info_dict['val_idx_set']))
-        print('len test_idx_set ', len(info_dict['test_idx_set']))
+        #print('len train_idx_set ', len(info_dict['train_idx_set']))
+        #print('len val_idx_set ', len(info_dict['val_idx_set']))
+        #print('len test_idx_set ', len(info_dict['test_idx_set']))
         label_set = set()
         for i in range(labels.shape[0]):
             #print(labels[i])
@@ -157,20 +162,23 @@ class my_data_set(data.Dataset):
     def _seperate_train_val_test_path(self, paths, info_dict):
         for key in ['train', 'val', 'test','others']:
             info_dict[key+'_paths'] = []
+            info_dict[key+'_paths_order'] = []
 
-        for path in paths:
+        for i in range(len(paths)):
+            path = paths[i]
             find_a_set = False
             for key in ['train', 'val', 'test']:
                 idx_set = info_dict[key+'_idx_set']
                 if path[0][2] in idx_set:
                     find_a_set = True
                     info_dict[key+'_paths'].append(path)
+                    info_dict[key+'_paths_order'].append(i)
                     break
             if not find_a_set:
                 info_dict['others'+'_paths'].append(path)
-
-        for key in ['train', 'val', 'test','others']:
-            print(key+'_paths len', len(info_dict[key+'_paths']))
+                info_dict['others'+'_paths_order'].append(i)
+       # for key in ['train', 'val', 'test','others']:
+    #       print(key+'_paths len', len(info_dict[key+'_paths']))
         return info_dict
 
 
@@ -196,15 +204,16 @@ class my_data_set(data.Dataset):
         # option 2 0 paddings
         # option 3 directly substitue
         opt=3
-        for path in paths:
-            data_of_a_path = []
-
-               
+        for i in range(len(paths)):
+            path= paths[i]
+            data_of_a_path = []            
             for node in path:
                 if node not in self.info_dict['Projected']:
                     if opt == 3:
                         node = path[2]  
-                data_of_a_path.append(self.info_dict['features'][node])
+                test=self.info_dict['features'][node]
+                test[-len(self.info_dict['Type_encodings'][self.info_dict[key+'_paths_order'][index]][i]):]=np.array(self.info_dict['Type_encodings'][self.info_dict[key+'_paths_order'][index]][i])
+                data_of_a_path.append(test)    
             #data_of_a_path = torch.stack(data_of_a_path, 0)
             #print('data_of_a_path 1', data_of_a_path)
 
@@ -215,7 +224,6 @@ class my_data_set(data.Dataset):
             
         # print('get data')
         # exit(0)
-
         data_of_a_path = np.array(data_of_paths)
         #print('data_of_a_path 2', data_of_a_path.shape)
         gat_vec = self.gat_vec[paths[0][2]]

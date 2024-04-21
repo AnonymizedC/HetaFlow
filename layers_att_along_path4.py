@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
+import pdb
 
 class GraphAttentionLayer(nn.Module):
     """
@@ -17,9 +17,9 @@ class GraphAttentionLayer(nn.Module):
         self.alpha = alpha
         self.concat = concat
         print('attention layers in_features out_features', in_features, out_features)
-
-        # self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
-        # nn.init.xavier_uniform_(self.W.data, gain=1.414)
+        self.path_trust = 10
+        self.W = nn.Parameter(torch.zeros(size=(in_features, out_features)))
+        nn.init.xavier_uniform_(self.W.data, gain=1.414)
         self.a = nn.Parameter(torch.zeros(size=(2*out_features, 1)))
         nn.init.xavier_uniform_(self.a.data, gain=1.414)
 
@@ -33,17 +33,27 @@ class GraphAttentionLayer(nn.Module):
     def forward(self, input):
         #print('input shape ',input.shape)
         #input = input.squeeze()
+
         path_num = input.size()[0]
-        # batch_W = self.W.unsqueeze(0)
-        # batch_W = batch_W.repeat(path_num,1,1)
-        # input = input.bmm(batch_W)
+        N = input.size()[1]
+        #Calculate confidence according to similarity using type embeddings.
+        aver_=torch.sum(torch.sum(input[:,:,self.out_features:],dim=0),dim=0)/(input.shape[0])/(input.shape[1])
+        all_=aver_.repeat(path_num, N, 1)
+        Confidence =  torch.pow(self.path_trust, 1-torch.sum(torch.pow(input[:,:,self.out_features:] -all_, 2))/path_num/N)
+        #input[:,:,self.out_features:]
+
+        batch_W = self.W.unsqueeze(0)
+        batch_W = batch_W.repeat(path_num,1,1)
+        skip = input
+
+        input = input.bmm(batch_W)
         #input = torch.mm(input, self.W) # input is 3 dimmension 10*5*8   output 10*8
-        N = input.size()[1] # N = path length
+         # N = path length
         #print('input ', input.shape)
         points2 = input[0][int(N/2)].repeat(path_num, N, 1)
         #print('points2 ', points2.shape)
-        #e = self.cos(input, points2)
-        #e = torch.dist(input, points2, p=2)
+        e = self.cos(input, points2)
+        e = torch.dist(input, points2, p=2)
         e = torch.pow(input - points2, 2).sum(2) 
         #print('e1 ', e.shape)
         e = e.unsqueeze(2)
@@ -54,7 +64,7 @@ class GraphAttentionLayer(nn.Module):
         # #print('a_input', a_input.shape)
         # e = self.leakyrelu(torch.matmul(a_input, self.a))
         # #print('e ',e.shape)
-
+        
         # zero_vec = -9e15*torch.ones_like(e)
         # attention = torch.where(adj > 0, e, zero_vec)
         attention = F.softmax(e, dim=1)
@@ -62,8 +72,9 @@ class GraphAttentionLayer(nn.Module):
         attention = attention.repeat(1, 1, self.out_features)
         #print('attention ',attention.shape)
         #attention = F.dropout(attention, self.dropout, training=self.training)
-        h_prime = input*attention  #f you want elementwise multiplication, use the multiplication operator (*); if you want batched matrix multiplication use torch.bmm.
+        h_prime = input[:,:,:self.out_features]*attention  #f you want elementwise multiplication, use the multiplication operator (*); if you want batched matrix multiplication use torch.bmm.
         #print('h_prime 1', h_prime.shape)
+        h_prime = (h_prime + skip[:,:,:h_prime.shape[2]]*Confidence)/(Confidence+1)
         h_prime = torch.sum(h_prime, 1)
         #print('h_prime ', h_prime.shape)
 

@@ -5,6 +5,7 @@ import networkx as nx
 import pdb
 import dgl
 import time
+import torch as th
 
 def gen_two_idx(used_path_idx_set, start, lens):
     # generat i j. start <= i < j < len , not in the set. if not find, one of ij will be -1 
@@ -58,7 +59,20 @@ def add_paths(path_list):
             idx2 += 1
     return ret_paths
 
+def type_embeding(paths_, G2, num_types, type_nodelist, name_typelist):
+    path_type_embed          = []
 
+    for path in paths_:
+        noded_type_embeding      = []
+        for i in path:
+            noded_type_embeding.append(name_typelist.index(G2.nodes[i]['ntype']))
+        path_type_embed.append(noded_type_embeding)
+
+            
+
+            
+        
+    return path_type_embed
 
 def gen_paths(G, source_node=0):
     # pdb.set_trace()
@@ -71,7 +85,7 @@ def gen_paths(G, source_node=0):
     if len(edges_list) == 0:
         print(' this source_node find no neighbor ', source_node)
         print(edges_list)
-
+    
     # creat a small graph
     G_small = nx.Graph()
     for edge in edges_list:
@@ -130,16 +144,38 @@ def main_of_decompose(G, dataset_str, To_be_projected):
 
     short_path_nodes = []
     decomposed_paths = []
+    Type_encodings   = []
     T1 = time.time()
     G2 = dgl.to_networkx(G)
-    #for i in To_be_projected:
-    #   print(i)
-    #pdb.set_trace()
+    type_nodelist    = th.tensor
+    num_types = len(G.ntypes)
+    type_nodelist = G.nodes(G.ntypes[0])
+    name_typelist = []
+    maxnum_node = 0
+    for i in range(num_types):
+        if G.num_nodes(G.ntypes[i]) >   maxnum_node:
+            maxnum_node = G.num_nodes(G.ntypes[i])
+    type_nodelist=th.ones(1,maxnum_node)*-1
+    #type_nodetemp   =th.ones(5)*-13
+    # pdb.set_trace()
+    for i in range(num_types):
+        type_nodetemp   = th.ones(1,maxnum_node)*-1
+        type_nodetemp[0,:len(G.nodes(G.ntypes[i]))] = G.nodes(G.ntypes[i])
+        type_nodelist   = th.cat([type_nodelist,type_nodetemp])
+        name_typelist.append(G.ntypes[i])
+
+
     for i in To_be_projected:  #G.number_of_nodes()
         print('decomposing node ', i)
         
         ret_paths = gen_paths(G2, source_node=i.item())
-        decomposed_paths.append(ret_paths) 
+        decomposed_paths.append(ret_paths)
+        Type_encoding = type_embeding(ret_paths, G2, num_types, type_nodelist, name_typelist)
+        #Type_encodings(type_embeding)
+ 
+        Type_encodings.append(Type_encoding)
+
+
         if len(ret_paths) == 0:
             short_path_nodes.append(i)
         print('Decomposing_time for this node:',  (time.time()-T1))
@@ -147,9 +183,10 @@ def main_of_decompose(G, dataset_str, To_be_projected):
     print('decomposed_paths len ', len(decomposed_paths))
     print('short_path_nodes ', short_path_nodes )
 
-
+    
     dump_file = 'decomposed_paths_central_rectangle_'+dataset_str
-    dump_dict = {'decomposed_paths':decomposed_paths}
+    dump_dict = {'decomposed_paths':decomposed_paths,
+                'Type_encodings':Type_encodings}
     pickle.dump(dump_dict, open(dump_file, "wb"))
     load_dict = pickle.load(open(dump_file, "rb"))
     print('decomposed_paths len ', len(load_dict['decomposed_paths'] ))

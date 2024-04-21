@@ -13,7 +13,9 @@ To run the code of this repository, the following requriments are needed.
 
 ## Simple Run
 Dowload the repository, intall the requriments. Excute the following in a CMD or shell or terminal:
-`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT`
+`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT --epochs 150 --learning_rate 5e-5`
+
+
 
 This is the output:
 ```
@@ -45,7 +47,7 @@ It will produce a file to store node vector. It is named **logits_of_DBLP**
 
 - Step3
 Train a GAT model whose attention is along flows or paths (to do the feature adjustments) and test its accuracy.
-`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT`
+`python train_HetaFlow_along_path5.py --dataset=dblp-gtn  --model GAT --epochs 150 --learning_rate 5e-5`
 
 optional arguments:
   -h, --help            show this help message and exit
