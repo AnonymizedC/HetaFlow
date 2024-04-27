@@ -19,7 +19,7 @@ Dowload the repository, intall the requriments. Excute the following in a CMD or
 
 This is the output:
 ```
-ubuntu@VM-0-8-ubuntu:~/backup/GFCN$ python3 train_HetaFlow_along_path5.py --dataset=dblp-gtn --model GAT
+$ python3 train_HetaFlow_along_path5.py --dataset=dblp-gtn --model GAT
 Base configs loaded.
 Model configs loaded.
 dblp-gtn dataset configs for this model loaded, override defaults.
